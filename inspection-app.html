@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a3a5c">
+<title>Maintenance Trail</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a3a5c;--navy2:#2563a8;--navy-bg:#e3f2fd;
+  --green:#1b5e20;--green-bg:#c8e6c9;--green-btn:#2e7d32;
+  --red:#b71c1c;--red-bg:#ffcdd2;--red-btn:#c62828;
+  --amber:#e65100;--amber-bg:#fff9c4;--amber-btn:#f57f17;
+  --gray:#616161;--gray-bg:#f5f5f5;--gray-btn:#9e9e9e;
+  --bg:#f0f4f8;--shadow:0 2px 8px rgba(0,0,0,.12);--r:12px;
+  --hh:60px;--fh:68px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:#212121;-webkit-tap-highlight-color:transparent;
+  overflow:hidden;height:100dvh;height:100vh}
+#app{display:flex;flex-direction:column;height:100dvh;height:100vh}
+
+/* HEADER */
+#hdr{background:var(--navy);color:#fff;padding:0 14px;height:var(--hh);
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);position:relative;z-index:10}
+#hdr-icon{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+#hdr-text{flex:1;min-width:0}
+#hdr-title{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hdr-sub{font-size:11px;color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#prog{height:3px;background:rgba(255,255,255,.2);flex-shrink:0}
+#prog-fill{height:100%;background:#64b5f6;transition:width .3s}
+
+/* MAIN */
+#main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding:14px;padding-bottom:calc(var(--fh) + 12px)}
+
+/* FOOTER */
+#ftr{position:fixed;bottom:0;left:0;right:0;background:#fff;
+  border-top:1px solid #e0e0e0;padding:10px 14px;
+  padding-bottom:max(10px,env(safe-area-inset-bottom));
+  display:flex;gap:8px;z-index:10}
+
+/* BUTTONS */
+.btn{border:none;border-radius:10px;padding:13px 18px;font-size:15px;
+  font-weight:600;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;gap:6px;transition:opacity .15s,transform .1s;
+  -webkit-user-select:none;user-select:none;font-family:inherit}
+.btn:active{opacity:.8;transform:scale(.97)}
+.btn-p{background:var(--navy);color:#fff;flex:1}
+.btn-s{background:var(--gray-bg);color:var(--navy);flex:1}
+.btn-ok{background:var(--green-btn);color:#fff;flex:1}
+.btn-sm{padding:8px 14px;font-size:13px;border-radius:8px}
+.btn-outline{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.btn-red{background:var(--red-btn);color:#fff}
+
+/* CARD */
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.card-hd{background:var(--navy);color:#fff;padding:11px 14px;font-size:13px;font-weight:700;letter-spacing:.3px}
+.card-hd-sub{font-size:10px;color:rgba(255,255,255,.65);font-weight:400;margin-top:2px}
+.card-bd{padding:14px}
+
+/* STATUS BUTTONS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:10px}
+.sb{border:2px solid transparent;border-radius:8px;padding:7px 3px;font-size:10px;
+  font-weight:700;cursor:pointer;background:var(--gray-bg);color:var(--gray);
+  text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent;letter-spacing:.3px}
+.sb .si{font-size:15px;display:block;margin-bottom:2px}
+.sb.p{background:var(--green-bg);color:var(--green);border-color:var(--green-btn)}
+.sb.f{background:var(--red-bg);color:var(--red);border-color:var(--red-btn)}
+.sb.a{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-btn)}
+.sb.n{background:#e0e0e0;color:#424242;border-color:var(--gray-btn)}
+
+/* ITEM CARD */
+.ic{background:#fff;border-radius:var(--r);box-shadow:var(--shadow);
+  margin-bottom:10px;border-left:4px solid #e0e0e0;transition:border-color .2s}
+.ic.s-PASS{border-left-color:var(--green-btn)}
+.ic.s-FAIL{border-left-color:var(--red-btn)}
+.ic.s-ATTENTION{border-left-color:var(--amber-btn)}
+.ic.s-NA{border-left-color:var(--gray-btn)}
+.ic-top{padding:13px 13px 8px}
+.ic-text{font-size:14px;font-weight:500;line-height:1.4}
+.ic-bot{padding:0 13px 12px}
+
+/* NOTE TEXTAREA */
+.note{width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:9px 11px;
+  font-size:14px;font-family:inherit;resize:vertical;min-height:58px;
+  color:#424242;background:#fafafa;margin-top:8px}
+.note:focus{outline:none;border-color:var(--navy2);background:#fff}
+
+/* PHOTOS */
+.photo-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:flex-start}
+.ph-wrap{position:relative}
+.ph-img{width:70px;height:70px;border-radius:8px;object-fit:cover;
+  border:2px solid #e0e0e0;display:block}
+.ph-del{position:absolute;top:-6px;right:-6px;width:20px;height:20px;
+  background:var(--red-btn);color:#fff;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;font-size:13px;font-weight:700;
+  cursor:pointer;border:2px solid #fff;line-height:1}
+.ph-btn{width:70px;height:70px;border-radius:8px;border:2px dashed #bdbdbd;
+  background:var(--gray-bg);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;cursor:pointer;color:var(--gray);font-size:9px;
+  font-weight:600;gap:3px;-webkit-tap-highlight-color:transparent}
+.ph-btn:active{background:#e0e0e0}
+.ph-btn span{font-size:22px}
+input[type=file]{display:none}
+
+/* FORM */
+.fg{margin-bottom:14px}
+.fl{font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:5px;display:block}
+.fi{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:11px 13px;
+  font-size:15px;font-family:inherit;color:#212121;background:#fff;
+  appearance:none;-webkit-appearance:none}
+.fi:focus{outline:none;border-color:var(--navy)}
+select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+/* SEGMENTED CONTROL */
+.seg{display:flex;border:1.5px solid var(--navy);border-radius:10px;overflow:hidden}
+.seg-b{flex:1;padding:10px 6px;font-size:13px;font-weight:600;text-align:center;
+  cursor:pointer;background:#fff;color:var(--navy);border:none;
+  border-right:1px solid var(--navy);transition:background .15s;
+  -webkit-tap-highlight-color:transparent;font-family:inherit}
+.seg-b:last-child{border-right:none}
+.seg-b.on{background:var(--navy);color:#fff}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat{background:#fff;border-radius:10px;padding:12px 6px;text-align:center;box-shadow:var(--shadow)}
+.stat-n{font-size:26px;font-weight:800;color:var(--navy)}
+.stat-l{font-size:9px;color:var(--gray);text-transform:uppercase;font-weight:600;margin-top:2px}
+.stat.ok .stat-n{color:var(--green-btn)}
+.stat.bad .stat-n{color:var(--red-btn)}
+
+/* START SCREEN */
+.logo-box{text-align:center;padding:36px 20px 20px}
+.logo-icon{width:80px;height:80px;background:var(--navy);border-radius:20px;
+  display:flex;align-items:center;justify-content:center;font-size:42px;
+  margin:0 auto 14px}
+.logo-title{font-size:22px;font-weight:800;color:var(--navy)}
+.logo-sub{font-size:13px;color:var(--gray);margin-top:4px;line-height:1.4}
+
+/* ISSUE PREVIEW */
+.ip{background:var(--red-bg);border-radius:10px;padding:11px 13px;margin-bottom:8px}
+.ip-t{font-size:13px;font-weight:600;color:var(--red)}
+.ip-n{font-size:12px;color:#5d4037;margin-top:3px;font-style:italic}
+
+/* WORK ROWS */
+.wr{background:#fff;border-radius:10px;padding:12px;margin-bottom:8px;
+  box-shadow:var(--shadow)}
+.wr-top{font-size:14px;font-weight:500;margin-bottom:6px}
+.wr-meta{font-size:12px;color:var(--gray);display:flex;gap:12px}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;
+  border-radius:20px;font-size:11px;font-weight:700}
+.bp{background:var(--green-bg);color:var(--green)}
+.bf{background:var(--red-bg);color:var(--red)}
+.ba{background:var(--amber-bg);color:var(--amber)}
+.bn{background:#e0e0e0;color:#424242}
+
+/* SCREENS */
+.screen{display:none}
+.screen.active{display:block}
+
+/* MISC */
+.divider{height:1px;background:#e0e0e0;margin:14px 0}
+.text-sm{font-size:12px;color:var(--gray)}
+.text-c{text-align:center}
+.mt8{margin-top:8px}
+.mt14{margin-top:14px}
+.mb8{margin-bottom:8px}
+.row{display:flex;gap:8px}
+.hidden{display:none!important}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:#323232;color:#fff;padding:10px 18px;border-radius:20px;
+  font-size:13px;font-weight:500;z-index:1000;opacity:0;
+  transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hdr">
+    <div id="hdr-icon">🏠</div>
+    <div id="hdr-text">
+      <div id="hdr-title">Maintenance Trail</div>
+      <div id="hdr-sub">STR Safety Inspection</div>
+    </div>
+  </div>
+  <div id="prog"><div id="prog-fill" style="width:0%"></div></div>
+
+  <div id="main">
+
+    <!-- START -->
+    <div id="screen-start" class="screen active">
+      <div class="logo-box">
+        <div class="logo-icon">🔧</div>
+        <div class="logo-title">Maintenance Trail</div>
+        <div class="logo-sub">Proactive Safety-First<br>Home Maintenance · Utah</div>
+      </div>
+      <div class="card"><div class="card-bd">
+        <button class="btn btn-p btn-lg" style="width:100%;margin-bottom:10px" onclick="newReport()">
+          ➕ &nbsp;Start New Report
+        </button>
+        <button class="btn btn-s btn-lg" style="width:100%" onclick="loadSaved()">
+          📂 &nbsp;Resume Saved Report
+        </button>
+        <p class="text-sm text-c mt8">Photos are kept in memory — generate the report before closing the app.</p>
+      </div></div>
+    </div>
+
+    <!-- SETUP -->
+    <div id="screen-setup" class="screen">
+      <div class="card">
+        <div class="card-hd">Property Details</div>
+        <div class="card-bd">
+          <div class="fg"><label class="fl">Property Address</label>
+            <input class="fi" id="s-addr" type="text" placeholder="123 Main St, Park City UT 84060"></div>
+          <div class="fg"><label class="fl">Platform</label>
+            <select class="fi" id="s-plat">
+              <option value="">Select…</option>
+              <option value="Airbnb">Airbnb</option>
+              <option value="VRBO">VRBO</option>
+              <option value="Direct">Direct / Other</option>
+            </select></div>
+          <div class="fg"><label class="fl">Service Plan</label>
+            <div class="seg" id="plan-seg">
+              <button class="seg-b on" onclick="setPlan('sentry',this)">Sentry<br><span style="font-weight:400;font-size:11px">$200/mo</span></button>
+              <button class="seg-b" onclick="setPlan('guardian',this)">Guardian<br><span style="font-weight:400;font-size:11px">$300/mo</span></button>
+            </div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">Visit Details</div>
+        <div class="card-bd">
+          <div class="fg"><label class="fl">Visit Date</label>
+            <input class="fi" id="s-date" type="date"></div>
+          <div class="fg"><label class="fl">Visit Number This Month</label>
+            <div class="seg" id="vn-seg">
+              <button class="seg-b on" onclick="setVisitNum('1st',this)">1st Visit</button>
+              <button class="seg-b" onclick="setVisitNum('2nd',this)">2nd Visit</button>
+            </div></div>
+          <div class="fg"><label class="fl">Technician Name</label>
+            <input class="fi" id="s-tech" type="text" placeholder="Your name"></div>
+          <div class="fg"><label class="fl">Report #</label>
+            <input class="fi" id="s-rnum" type="text" placeholder="e.g. 2025-042"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHECKLIST (dynamic) -->
+    <div id="screen-checklist" class="screen"></div>
+
+    <!-- WORK COMPLETED -->
+    <div id="screen-work" class="screen">
+      <div class="card">
+        <div class="card-hd">Work Completed This Visit<div class="card-hd-sub">Sentry & Guardian: up to 2 hrs included labor/month</div></div>
+        <div class="card-bd" id="work-rows"></div>
+      </div>
+      <button class="btn btn-s" onclick="addWorkRow()" style="width:100%;margin-bottom:14px">➕ Add Task</button>
+
+      <div class="divider"></div>
+
+      <div class="card">
+        <div class="card-hd">Fixed-Price Proposals<div class="card-hd-sub">Items exceeding plan allowance — client approval required</div></div>
+        <div class="card-bd" id="prop-rows"></div>
+      </div>
+      <button class="btn btn-s" onclick="addPropRow()" style="width:100%;margin-bottom:14px">➕ Add Proposal</button>
+    </div>
+
+    <!-- TECH NOTES -->
+    <div id="screen-notes" class="screen">
+      <div class="card">
+        <div class="card-hd">Technician Notes & Observations</div>
+        <div class="card-bd">
+          <textarea class="note" id="tech-notes" rows="8"
+            placeholder="Seasonal recommendations, upcoming service needs, general observations…"
+            style="min-height:160px"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERATE -->
+    <div id="screen-generate" class="screen">
+      <div class="stats">
+        <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">Inspected</div></div>
+        <div class="stat ok"><div class="stat-n" id="st-pass">0</div><div class="stat-l">Passed</div></div>
+        <div class="stat bad"><div class="stat-n" id="st-action">0</div><div class="stat-l">Action</div></div>
+      </div>
+      <div id="issues-preview"></div>
+      <div class="card"><div class="card-bd">
+        <button class="btn btn-ok btn-lg" style="width:100%" onclick="generateReport()">
+          📄 &nbsp;Generate Report (PDF)
+        </button>
+        <p class="text-sm text-c mt8">Opens print dialog · Save as PDF or AirPrint</p>
+      </div></div>
+    </div>
+
+  </div><!-- /main -->
+
+  <div id="ftr">
+    <button class="btn btn-s" id="btn-back" onclick="goBack()">← Back</button>
+    <button class="btn btn-p" id="btn-next" onclick="goNext()">Next →</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── CHECKLIST DATA ───────────────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    id:'smoke', plan:'both',
+    title:'Section 1A — Smoke & CO Detectors',
+    sub:'Safety Sweep · All Plans',
+    items:[
+      {id:'sm1',t:'Smoke detector — Living room: test button & battery'},
+      {id:'sm2',t:'Smoke detector — Bedroom 1: test button & battery'},
+      {id:'sm3',t:'Smoke detector — Bedroom 2: test button & battery'},
+      {id:'sm4',t:'Smoke detector — Hallway / common area'},
+      {id:'sm5',t:'CO detector — Test & verify battery / expiry (max 7 yrs)'},
+      {id:'sm6',t:'All detector units within 10-year manufacturer life'},
+      {id:'sm7',t:'Detectors mounted on ceiling or high wall — not blocked'},
+      {id:'sm8',t:'No tampering, removal, or disabled unit found'},
+    ]
+  },
+  {
+    id:'fire', plan:'both',
+    title:'Section 1B — Fire Safety',
+    sub:'Safety Sweep · All Plans',
+    items:[
+      {id:'fi1',t:'Fire extinguisher — Pressure gauge in green zone'},
+      {id:'fi2',t:'Fire extinguisher — Annual inspection tag current'},
+      {id:'fi3',t:'Kitchen extinguisher accessible & not obstructed'},
+      {id:'fi4',t:'Exit routes clear — front door, back door, windows'},
+      {id:'fi5',t:'Guest-facing emergency info card posted (exits, 911, host #)'},
+    ]
+  },
+  {
+    id:'leak', plan:'both',
+    title:'Section 1C — Leak & Water Damage',
+    sub:'Safety Sweep · All Plans',
+    items:[
+      {id:'lk1',t:'Kitchen under-sink — visual leak check'},
+      {id:'lk2',t:'Bathroom 1 under-sink — visual leak check'},
+      {id:'lk3',t:'Bathroom 2 under-sink — visual leak check'},
+      {id:'lk4',t:'Toilet base(s) — no rocking, no seepage'},
+      {id:'lk5',t:'Water heater — no pooling, PRV intact, temp ~120°F'},
+      {id:'lk6',t:'Supply line hoses (washer, fridge ice maker) — no bulge/crack'},
+      {id:'lk7',t:'Ceiling / walls — no water stains or active moisture'},
+      {id:'lk8',t:'Main water shut-off valve — located & confirmed operational'},
+    ]
+  },
+  {
+    id:'elec', plan:'both',
+    title:'Section 1D — Electrical Safety',
+    sub:'Safety Sweep · All Plans',
+    items:[
+      {id:'el1',t:'GFCI outlets tested — kitchen'},
+      {id:'el2',t:'GFCI outlets tested — bathrooms'},
+      {id:'el3',t:'GFCI outlets tested — exterior / garage'},
+      {id:'el4',t:'No visible damaged cords, exposed wiring, or DIY fixes'},
+      {id:'el5',t:'Panel — no tripped breakers, labels legible'},
+      {id:'el6',t:'All outlet & switch cover plates intact'},
+      {id:'el7',t:'Exterior & porch lighting functional'},
+    ]
+  },
+  {
+    id:'access', plan:'both',
+    title:'Section 2 — Access, Smart Lock & Technology',
+    sub:'All Plans',
+    items:[
+      {id:'ac1',t:'Smart lock — Battery level checked (replace < 20%)',hint:'Battery: ____%'},
+      {id:'ac2',t:'Smart lock — Remote access tested from app'},
+      {id:'ac3',t:'Smart lock — Current guest code active & working'},
+      {id:'ac4',t:'Smart lock — Previous / expired guest codes cleared'},
+      {id:'ac5',t:'Smart lock — Emergency host override code confirmed'},
+      {id:'ac6',t:'Deadbolt(s) — Smooth throw, door aligns in frame'},
+      {id:'ac7',t:'Strike plate — Secured with 3-inch screws'},
+      {id:'ac8',t:'Sliding door / patio door lock & security bar'},
+      {id:'ac9',t:'All ground-floor window latches functional'},
+      {id:'ac10',t:'Garage door (if applicable) — Auto-reverse safety tested'},
+      {id:'ac11',t:'Doorbell camera / security cameras — Online & recording'},
+      {id:'ac12',t:'WiFi router — Online, guest network password current'},
+      {id:'ac13',t:'Smart thermostat — Guest-facing schedule loaded'},
+      {id:'ac14',t:'Tech reset performed (router reboot / hub / lock firmware)'},
+      {id:'ac15',t:'Smart TV / streaming — Accounts active, guest instructions posted'},
+    ]
+  },
+  {
+    id:'hvac', plan:'both',
+    title:'Section 3 — HVAC & Indoor Comfort',
+    sub:'All Plans',
+    items:[
+      {id:'hv1',t:'HVAC filter — Inspected (replace if > 30% loaded)',hint:'Filter size: ___'},
+      {id:'hv2',t:'Filter last replaced date noted',hint:'Date: ___/___/______   MERV: ___'},
+      {id:'hv3',t:'Heating mode — Runs, reaches set temp'},
+      {id:'hv4',t:'Cooling mode — Runs, reaches set temp'},
+      {id:'hv5',t:'Thermostat — Calibrated ±2°F of room temp'},
+      {id:'hv6',t:'All supply vents open & clear of furniture'},
+      {id:'hv7',t:'Bathroom exhaust fan(s) — Operational'},
+      {id:'hv8',t:'Dryer vent — No lint blockage at exterior cap'},
+      {id:'hv9',t:'Condensate drain (cooling season) — No algae blockage'},
+      {id:'hv10',t:'No unusual HVAC noises or error codes'},
+    ]
+  },
+  {
+    id:'appl', plan:'both',
+    title:'Section 4 — Appliances & Fixtures',
+    sub:'All Plans',
+    items:[
+      {id:'ap1',t:'Refrigerator — Running, door seals intact, no ice build-up',hint:'Fridge: ___°F   Freezer: ___°F'},
+      {id:'ap2',t:'Dishwasher — Run rinse cycle, no leaks, drain clear'},
+      {id:'ap3',t:'Range / Oven — All burners / elements functional'},
+      {id:'ap4',t:'Range hood — Fan operational, filter not clogged'},
+      {id:'ap5',t:'Microwave — Functional, door latch secure'},
+      {id:'ap6',t:'Washer — Rinse cycle, no error codes, door seal clean'},
+      {id:'ap7',t:'Dryer — Heating element works, cycle completes'},
+      {id:'ap8',t:'Garbage disposal — Operational, no odors'},
+      {id:'ap9',t:'Kitchen faucet — No drip, hot & cold present'},
+      {id:'ap10',t:'Shower / tub — Drain clear, no slow drain'},
+      {id:'ap11',t:'Toilet(s) — No running water, flush strong'},
+      {id:'ap12',t:'Hot water — Adequate supply & pressure'},
+      {id:'ap13',t:'Light bulbs — All fixtures functional (replace burned-out)'},
+      {id:'ap14',t:'Window treatments / blinds — Intact & operable'},
+    ]
+  },
+  {
+    id:'ext', plan:'guardian',
+    title:'Section 5 — Deep-Dive & Exterior Perimeter',
+    sub:'Guardian Plan Only',
+    items:[
+      {id:'ex1',t:'Entry walkway / steps — No tripping hazards, ice-free (Oct–Apr)'},
+      {id:'ex2',t:'Driveway / parking area — Usable, no major cracking'},
+      {id:'ex3',t:'Exterior doors — Weather stripping intact, no drafts'},
+      {id:'ex4',t:'Window seals — No broken / fogged double-pane glass'},
+      {id:'ex5',t:'Gutters — Visually clear from ground'},
+      {id:'ex6',t:'Roof — No obvious damaged / missing shingles (ground visual)'},
+      {id:'ex7',t:'Hose bibs — Capped / winterized (Oct–Apr)'},
+      {id:'ex8',t:'Outdoor furniture / BBQ — Secured or stored'},
+      {id:'ex9',t:'Hot tub / pool (if applicable) — Cover secure, chemicals in range'},
+      {id:'ex10',t:'Exterior paint / siding — No visible peeling or damage'},
+      {id:'ex11',t:'Outdoor lighting (pathway, driveway) — All functional'},
+      {id:'ex12',t:'Pest signs — No visible evidence of rodents or insects'},
+    ]
+  },
+  {
+    id:'guest', plan:'both',
+    title:'Section 6 — Guest Readiness Check',
+    sub:'All Plans',
+    items:[
+      {id:'gr1',t:'Guest welcome / house manual — Present & current'},
+      {id:'gr2',t:'Emergency contact info posted (host, 911, local emergency)'},
+      {id:'gr3',t:'Check-in instructions visible / accessible'},
+      {id:'gr4',t:'WiFi password displayed'},
+      {id:'gr5',t:'Trash / recycling — Bins emptied & positioned correctly'},
+      {id:'gr6',t:'HVAC set to guest-arrival temperature'},
+      {id:'gr7',t:'All interior lights functional — no burned-out bulbs'},
+      {id:'gr8',t:'Property secured after inspection (all doors / windows locked)'},
+    ]
+  },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const S = {
+  plan: 'sentry',
+  visitNum: '1st',
+  items: {},    // id -> { status: null|'PASS'|'FAIL'|'ATTENTION'|'NA', note: '' }
+  work: [],     // [{task,min,parts,cost}]
+  proposals: [], // [{desc,qty,unit,total}]
+  techNotes: ''
+};
+const photos = {}; // itemId -> [{dataUrl, label}]
+
+let screen = 'start';
+let secIdx = 0;
+
+function visibleSections() {
+  return S.plan === 'guardian' ? SECTIONS : SECTIONS.filter(s => s.plan !== 'guardian');
+}
+
+function getItem(id) {
+  if (!S.items[id]) S.items[id] = { status: null, note: '' };
+  return S.items[id];
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+const SCREENS = ['start','setup','checklist','work','notes','generate'];
+
+function showScreen(name) {
+  screen = name;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + name);
+  if (el) { el.classList.add('active'); document.getElementById('main').scrollTop = 0; }
+  if (name === 'checklist') renderSection();
+  if (name === 'work') renderWork();
+  if (name === 'generate') renderGenerate();
+  updateHeader();
+  updateFooter();
+  updateProgress();
+  saveLS();
+}
+
+function goNext() {
+  if (screen === 'setup') { if (!validateSetup()) return; showScreen('checklist'); secIdx = 0; return; }
+  if (screen === 'checklist') {
+    captureNote();
+    const secs = visibleSections();
+    if (secIdx < secs.length - 1) { secIdx++; showScreen('checklist'); }
+    else showScreen('work');
+    return;
+  }
+  if (screen === 'work')  { captureWork(); showScreen('notes'); return; }
+  if (screen === 'notes') { S.techNotes = document.getElementById('tech-notes').value; showScreen('generate'); return; }
+}
+
+function goBack() {
+  if (screen === 'setup')     { showScreen('start'); return; }
+  if (screen === 'checklist') {
+    captureNote();
+    if (secIdx > 0) { secIdx--; showScreen('checklist'); }
+    else showScreen('setup');
+    return;
+  }
+  if (screen === 'work')     { showScreen('checklist'); secIdx = visibleSections().length - 1; return; }
+  if (screen === 'notes')    { showScreen('work'); return; }
+  if (screen === 'generate') { showScreen('notes'); return; }
+}
+
+function updateHeader() {
+  const secs = visibleSections();
+  let title = 'Maintenance Trail', sub = 'STR Safety Inspection';
+  if (screen === 'setup') { title = 'Property Setup'; sub = 'Step 1 of ' + (secs.length + 3); }
+  else if (screen === 'checklist') { title = secs[secIdx].title; sub = 'Section ' + (secIdx+1) + ' of ' + secs.length; }
+  else if (screen === 'work')     { title = 'Work Completed'; sub = 'Step ' + (secs.length+2) + ' of ' + (secs.length+3); }
+  else if (screen === 'notes')    { title = 'Technician Notes'; sub = 'Step ' + (secs.length+3) + ' of ' + (secs.length+3); }
+  else if (screen === 'generate') { title = 'Generate Report'; sub = 'Review & Export'; }
+  document.getElementById('hdr-title').textContent = title;
+  document.getElementById('hdr-sub').textContent = sub;
+}
+
+function updateFooter() {
+  const back = document.getElementById('btn-back');
+  const next = document.getElementById('btn-next');
+  const ftr  = document.getElementById('ftr');
+  if (screen === 'start') { ftr.style.display = 'none'; return; }
+  ftr.style.display = 'flex';
+  back.style.display = screen === 'start' ? 'none' : '';
+  if (screen === 'generate') { next.textContent = ''; next.style.display = 'none'; }
+  else { next.style.display = ''; next.textContent = screen === 'notes' ? '📄 Review →' : 'Next →'; }
+}
+
+function updateProgress() {
+  const secs = visibleSections();
+  const total = secs.length + 3; // setup + secs + work + notes
+  let step = 0;
+  if (screen === 'setup') step = 1;
+  else if (screen === 'checklist') step = 2 + secIdx;
+  else if (screen === 'work') step = 2 + secs.length;
+  else if (screen === 'notes') step = 3 + secs.length;
+  else if (screen === 'generate') step = total;
+  document.getElementById('prog-fill').style.width = (step / total * 100) + '%';
+}
+
+// ─── SETUP ────────────────────────────────────────────────────────────────────
+function newReport() {
+  Object.assign(S, { plan:'sentry', visitNum:'1st', items:{}, work:[], proposals:[], techNotes:'' });
+  Object.keys(photos).forEach(k => delete photos[k]);
+  document.getElementById('s-date').value = new Date().toISOString().slice(0,10);
+  showScreen('setup');
+  secIdx = 0;
+}
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem('mtr');
+    if (!raw) { toast('No saved report found'); return; }
+    const d = JSON.parse(raw);
+    Object.assign(S, d);
+    // Restore form fields
+    document.getElementById('s-addr').value = d.addr || '';
+    document.getElementById('s-plat').value = d.plat || '';
+    document.getElementById('s-date').value = d.date || '';
+    document.getElementById('s-tech').value = d.tech || '';
+    document.getElementById('s-rnum').value = d.rnum || '';
+    setPlanUI(d.plan || 'sentry');
+    setVisitNumUI(d.visitNum || '1st');
+    toast('Report loaded — photos were not saved');
+    showScreen('setup');
+  } catch(e) { toast('Could not load saved data'); }
+}
+
+function validateSetup() {
+  const addr = document.getElementById('s-addr').value.trim();
+  const tech = document.getElementById('s-tech').value.trim();
+  if (!addr) { toast('Please enter property address'); return false; }
+  if (!tech) { toast('Please enter technician name'); return false; }
+  S.addr = addr;
+  S.plat = document.getElementById('s-plat').value;
+  S.date = document.getElementById('s-date').value;
+  S.tech = tech;
+  S.rnum = document.getElementById('s-rnum').value.trim();
+  return true;
+}
+
+function setPlan(p, btn) {
+  S.plan = p;
+  document.querySelectorAll('#plan-seg .seg-b').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function setPlanUI(p) {
+  S.plan = p;
+  document.querySelectorAll('#plan-seg .seg-b').forEach((b,i) => {
+    b.classList.toggle('on', (i===0 && p==='sentry') || (i===1 && p==='guardian'));
+  });
+}
+function setVisitNum(n, btn) {
+  S.visitNum = n;
+  document.querySelectorAll('#vn-seg .seg-b').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function setVisitNumUI(n) {
+  S.visitNum = n;
+  document.querySelectorAll('#vn-seg .seg-b').forEach((b,i) => {
+    b.classList.toggle('on', (i===0 && n==='1st') || (i===1 && n==='2nd'));
+  });
+}
+
+// ─── CHECKLIST RENDERING ──────────────────────────────────────────────────────
+let activeNoteId = null;
+
+function renderSection() {
+  const secs = visibleSections();
+  const sec  = secs[secIdx];
+  const el   = document.getElementById('screen-checklist');
+
+  let html = `<div class="card" style="margin-bottom:10px">
+    <div class="card-hd">${sec.title}<div class="card-hd-sub">${sec.sub}</div></div>
+  </div>`;
+
+  sec.items.forEach(item => {
+    const st   = getItem(item.id).status;
+    const note = getItem(item.id).note || '';
+    const cls  = st ? 's-'+st : '';
+    const hint = item.hint ? `placeholder="${item.hint}"` : 'placeholder="Add note…"';
+
+    html += `<div class="ic ${cls}" id="ic-${item.id}">
+      <div class="ic-top">
+        <div class="ic-text">${item.t}</div>
+        <div class="sg">
+          <button class="sb ${st==='PASS'?'p':''}"    onclick="setStatus('${item.id}','PASS')">
+            <span class="si">✓</span>PASS</button>
+          <button class="sb ${st==='FAIL'?'f':''}"    onclick="setStatus('${item.id}','FAIL')">
+            <span class="si">✗</span>FAIL</button>
+          <button class="sb ${st==='ATTENTION'?'a':''}" onclick="setStatus('${item.id}','ATTENTION')">
+            <span class="si">⚠</span>ATTN</button>
+          <button class="sb ${st==='NA'?'n':''}"      onclick="setStatus('${item.id}','NA')">
+            <span class="si">–</span>N/A</button>
+        </div>
+      </div>
+      <div class="ic-bot" id="bot-${item.id}" ${st && st!=='NA' ? '' : 'style="display:none"'}>
+        <textarea class="note" id="note-${item.id}" rows="2" ${hint}
+          oninput="getItem('${item.id}').note=this.value;saveLS()">${note}</textarea>
+        <div class="photo-row" id="photos-${item.id}"></div>
+        <div class="row mt8">
+          <label class="ph-btn" onclick="triggerPhoto('${item.id}')">
+            <span>📷</span>Take Photo
+          </label>
+          <label class="ph-btn" onclick="triggerPhotoLib('${item.id}')">
+            <span>🖼</span>Library
+          </label>
+        </div>
+        <input type="file" id="cam-${item.id}"  accept="image/*" capture="environment" onchange="handlePhoto('${item.id}',this)">
+        <input type="file" id="lib-${item.id}"  accept="image/*"                        onchange="handlePhoto('${item.id}',this)">
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = html;
+  // Render existing photos
+  sec.items.forEach(item => renderPhotos(item.id));
+}
+
+function setStatus(id, status) {
+  const item = getItem(id);
+  item.status = item.status === status ? null : status;
+  const card = document.getElementById('ic-' + id);
+  card.className = 'ic' + (item.status ? ' s-' + item.status : '');
+
+  // Update button highlights
+  const btns = card.querySelectorAll('.sb');
+  btns[0].className = 'sb' + (item.status==='PASS'?'      p':'');
+  btns[1].className = 'sb' + (item.status==='FAIL'?'      f':'');
+  btns[2].className = 'sb' + (item.status==='ATTENTION'?' a':'');
+  btns[3].className = 'sb' + (item.status==='NA'?'        n':'');
+
+  // Show/hide extras
+  const bot = document.getElementById('bot-' + id);
+  bot.style.display = (item.status && item.status !== 'NA') ? '' : 'none';
+  saveLS();
+}
+
+function captureNote() {
+  const secs = visibleSections();
+  const sec = secs[secIdx];
+  if (!sec) return;
+  sec.items.forEach(item => {
+    const el = document.getElementById('note-' + item.id);
+    if (el) getItem(item.id).note = el.value;
+  });
+}
+
+// ─── PHOTOS ───────────────────────────────────────────────────────────────────
+function triggerPhoto(id)    { document.getElementById('cam-' + id).click(); }
+function triggerPhotoLib(id) { document.getElementById('lib-' + id).click(); }
+
+function handlePhoto(id, input) {
+  const file = input.files[0];
+  if (!file) return;
+  resizePhoto(file).then(dataUrl => {
+    if (!photos[id]) photos[id] = [];
+    photos[id].push({ dataUrl });
+    renderPhotos(id);
+    input.value = '';
+  });
+}
+
+function resizePhoto(file, maxW = 900) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxW / img.width);
+      const c = document.createElement('canvas');
+      c.width = img.width * scale;
+      c.height = img.height * scale;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL('image/jpeg', 0.82));
+      URL.revokeObjectURL(img.src);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function renderPhotos(id) {
+  const row = document.getElementById('photos-' + id);
+  if (!row) return;
+  const ps = photos[id] || [];
+  row.innerHTML = ps.map((p, i) =>
+    `<div class="ph-wrap">
+      <img class="ph-img" src="${p.dataUrl}">
+      <div class="ph-del" onclick="deletePhoto('${id}',${i})">×</div>
+    </div>`
+  ).join('');
+}
+
+function deletePhoto(id, idx) {
+  photos[id].splice(idx, 1);
+  renderPhotos(id);
+}
+
+// ─── WORK COMPLETED ───────────────────────────────────────────────────────────
+function renderWork() {
+  renderWorkRows();
+  renderPropRows();
+}
+
+function renderWorkRows() {
+  const el = document.getElementById('work-rows');
+  if (!S.work.length) { el.innerHTML = '<p class="text-sm">No tasks added yet.</p>'; return; }
+  el.innerHTML = S.work.map((w,i) => `
+    <div class="wr">
+      <div class="row mb8">
+        <input class="fi" style="flex:1" placeholder="Task description" value="${esc(w.task)}"
+          oninput="S.work[${i}].task=this.value">
+        <button class="btn btn-red btn-sm" style="flex:0" onclick="removeWork(${i})">✕</button>
+      </div>
+      <div class="row">
+        <div style="flex:1"><label class="fl">Minutes</label>
+          <input class="fi" type="number" placeholder="30" value="${w.min||''}"
+            oninput="S.work[${i}].min=this.value"></div>
+        <div style="flex:1"><label class="fl">Parts Used</label>
+          <input class="fi" placeholder="e.g. HVAC filter" value="${esc(w.parts||'')}"
+            oninput="S.work[${i}].parts=this.value"></div>
+        <div style="flex:1"><label class="fl">Parts $</label>
+          <input class="fi" type="number" placeholder="0" value="${w.cost||''}"
+            oninput="S.work[${i}].cost=this.value"></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderPropRows() {
+  const el = document.getElementById('prop-rows');
+  if (!S.proposals.length) { el.innerHTML = '<p class="text-sm">No proposals added yet.</p>'; return; }
+  el.innerHTML = S.proposals.map((p,i) => `
+    <div class="wr">
+      <div class="row mb8">
+        <input class="fi" style="flex:1" placeholder="Repair description" value="${esc(p.desc)}"
+          oninput="S.proposals[${i}].desc=this.value">
+        <button class="btn btn-red btn-sm" style="flex:0" onclick="removeProp(${i})">✕</button>
+      </div>
+      <div class="row">
+        <div style="flex:1"><label class="fl">Labor $</label>
+          <input class="fi" type="number" placeholder="0" value="${p.labor||''}"
+            oninput="S.proposals[${i}].labor=this.value;updatePropTotal(${i})"></div>
+        <div style="flex:1"><label class="fl">Parts $</label>
+          <input class="fi" type="number" placeholder="0" value="${p.parts||''}"
+            oninput="S.proposals[${i}].parts=this.value;updatePropTotal(${i})"></div>
+        <div style="flex:1"><label class="fl">Total $</label>
+          <input class="fi" id="pt-${i}" readonly value="${p.total||''}"></div>
+      </div>
+    </div>`).join('');
+}
+
+function updatePropTotal(i) {
+  const p = S.proposals[i];
+  const t = (parseFloat(p.labor)||0) + (parseFloat(p.parts)||0);
+  p.total = t.toFixed(2);
+  const el = document.getElementById('pt-' + i);
+  if (el) el.value = p.total;
+}
+
+function addWorkRow() {
+  S.work.push({ task:'', min:'', parts:'', cost:'' });
+  renderWorkRows();
+}
+function removeWork(i) { S.work.splice(i,1); renderWorkRows(); }
+function addPropRow() {
+  S.proposals.push({ desc:'', labor:'', parts:'', total:'' });
+  renderPropRows();
+}
+function removeProp(i) { S.proposals.splice(i,1); renderPropRows(); }
+
+function captureWork() {
+  // Values are already kept in S via oninput handlers
+}
+
+// ─── GENERATE SCREEN ──────────────────────────────────────────────────────────
+function getStats() {
+  const secs = visibleSections();
+  let total=0, pass=0, action=0;
+  secs.forEach(sec => sec.items.forEach(item => {
+    const st = S.items[item.id]?.status;
+    if (st && st !== 'NA') { total++; if (st==='PASS') pass++; else action++; }
+  }));
+  return { total, pass, action };
+}
+
+function renderGenerate() {
+  const { total, pass, action } = getStats();
+  document.getElementById('st-total').textContent  = total;
+  document.getElementById('st-pass').textContent   = pass;
+  document.getElementById('st-action').textContent = action;
+
+  const el = document.getElementById('issues-preview');
+  const secs = visibleSections();
+  let html = '';
+  secs.forEach(sec => sec.items.forEach(item => {
+    const st = S.items[item.id]?.status;
+    const note = S.items[item.id]?.note || '';
+    if (st === 'FAIL' || st === 'ATTENTION') {
+      const cls = st === 'FAIL' ? 'bf' : 'ba';
+      html += `<div class="ip">
+        <div class="ip-t"><span class="badge ${cls}">${st}</span> ${item.t}</div>
+        ${note ? `<div class="ip-n">${esc(note)}</div>` : ''}
+      </div>`;
+    }
+  }));
+  el.innerHTML = html || '<div class="card"><div class="card-bd" style="text-align:center;color:var(--green-btn);font-weight:600">✓ All inspected items passed!</div></div>';
+}
+
+// ─── REPORT GENERATION ────────────────────────────────────────────────────────
+function generateReport() {
+  const secs = visibleSections();
+  const { total, pass, action } = getStats();
+  const date = S.date ? new Date(S.date + 'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '—';
+  const plan = S.plan === 'guardian' ? 'Guardian Plan  ($300/mo)' : 'Sentry Plan  ($200/mo)';
+
+  // Build checklist section HTML
+  let sectionsHTML = '';
+  secs.forEach(sec => {
+    let rows = '';
+    sec.items.forEach(item => {
+      const st   = S.items[item.id]?.status || 'NA';
+      const note = S.items[item.id]?.note || '';
+      const badge = { PASS:'✓ PASS', FAIL:'✗ FAIL', ATTENTION:'⚠ ATTN', NA:'– N/A' }[st] || '–';
+      const bgMap = { PASS:'#c8e6c9', FAIL:'#ffcdd2', ATTENTION:'#fff9c4', NA:'#f5f5f5' };
+      const colMap= { PASS:'#1b5e20', FAIL:'#b71c1c', ATTENTION:'#e65100', NA:'#616161' };
+      rows += `<tr>
+        <td style="padding:7px 10px;font-size:9.5pt;width:55%">${item.t}</td>
+        <td style="padding:7px 10px;text-align:center;font-size:9pt;font-weight:700;
+          background:${bgMap[st]};color:${colMap[st]};width:15%">${badge}</td>
+        <td style="padding:7px 10px;font-size:9pt;color:#424242;width:30%">${esc(note)}</td>
+      </tr>`;
+    });
+    sectionsHTML += `
+      <tr><td colspan="3" style="background:#1a3a5c;color:#fff;padding:9px 12px;
+        font-size:10pt;font-weight:700;letter-spacing:.3px;text-transform:uppercase">
+        ${sec.title}&nbsp;&nbsp;<span style="font-size:8.5pt;font-weight:400;opacity:.7">${sec.sub}</span>
+      </td></tr>
+      <tr style="background:#e3f2fd">
+        <td style="padding:6px 10px;font-size:8pt;font-weight:700;color:#1a3a5c">Inspection Item</td>
+        <td style="padding:6px 10px;font-size:8pt;font-weight:700;color:#1a3a5c;text-align:center">Status</td>
+        <td style="padding:6px 10px;font-size:8pt;font-weight:700;color:#1a3a5c">Notes / Action Required</td>
+      </tr>
+      ${rows}
+      <tr><td colspan="3" style="height:8px;background:#f0f4f8"></td></tr>`;
+  });
+
+  // Build photo section
+  let photoHTML = '';
+  let hasPhotos = false;
+  secs.forEach(sec => {
+    sec.items.forEach(item => {
+      const ps = photos[item.id] || [];
+      if (ps.length) {
+        hasPhotos = true;
+        const st = S.items[item.id]?.status || '';
+        photoHTML += `<tr><td colspan="3" style="padding:10px 12px 4px;font-size:9.5pt;font-weight:700">
+          ${item.t}
+          <span style="font-size:9pt;font-weight:400;color:${st==='FAIL'?'#b71c1c':st==='ATTENTION'?'#e65100':'#424242'}">&nbsp;[${st}]</span>
+        </td></tr>
+        <tr><td colspan="3" style="padding:4px 12px 12px">
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            ${ps.map(p => `<img src="${p.dataUrl}" style="width:220px;height:165px;object-fit:cover;border-radius:6px;border:1px solid #ddd">`).join('')}
+          </div>
+        </td></tr>`;
+      }
+    });
+  });
+
+  // Work table
+  let workHTML = '';
+  if (S.work.length) {
+    let totalMin = 0;
+    S.work.forEach(w => { totalMin += parseInt(w.min)||0; });
+    const usedH = Math.floor(totalMin/60), usedM = totalMin%60;
+    const remMin = Math.max(0, 120 - totalMin);
+    const remH = Math.floor(remMin/60), remM = remMin%60;
+    workHTML = S.work.map(w => `
+      <tr>
+        <td style="padding:7px 10px;font-size:9.5pt">${esc(w.task||'—')}</td>
+        <td style="padding:7px 10px;font-size:9.5pt;text-align:center">${w.min||'—'} min</td>
+        <td style="padding:7px 10px;font-size:9.5pt">${esc(w.parts||'—')}</td>
+        <td style="padding:7px 10px;font-size:9.5pt;text-align:right">$${w.cost||'0'}</td>
+      </tr>`).join('');
+    workHTML += `
+      <tr style="background:#e3f2fd;font-weight:700">
+        <td colspan="2" style="padding:8px 10px;font-size:9.5pt">TOTAL LABOR THIS VISIT</td>
+        <td colspan="2" style="padding:8px 10px;font-size:9.5pt;text-align:right">${usedH}h ${usedM}m</td>
+      </tr>
+      <tr style="background:#c8e6c9;font-weight:700">
+        <td colspan="2" style="padding:8px 10px;font-size:9.5pt">HOURS REMAINING IN PLAN</td>
+        <td colspan="2" style="padding:8px 10px;font-size:9.5pt;text-align:right">${remH}h ${remM}m</td>
+      </tr>`;
+  }
+
+  // Proposals table
+  let propHTML = '';
+  if (S.proposals.length) {
+    propHTML = S.proposals.map(p => `<tr>
+      <td style="padding:7px 10px;font-size:9.5pt">${esc(p.desc||'—')}</td>
+      <td style="padding:7px 10px;font-size:9.5pt;text-align:right">$${p.labor||'0'}</td>
+      <td style="padding:7px 10px;font-size:9.5pt;text-align:right">$${p.parts||'0'}</td>
+      <td style="padding:7px 10px;font-size:9.5pt;text-align:right;font-weight:700">$${p.total||'0'}</td>
+    </tr>`).join('');
+  }
+
+  const html = `<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<title>Maintenance Trail Report — ${esc(S.addr||'')}</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#000;margin:0;padding:0}
+  table{border-collapse:collapse;width:100%}
+  td,th{vertical-align:top}
+  tr:nth-child(even) td{background:#fafafa}
+  @media print{
+    .no-print{display:none!important}
+    body{margin:0}
+  }
+  @page{margin:1.5cm 1.8cm;size:A4}
+</style>
+</head><body>
+
+<div class="no-print" style="background:#1a3a5c;color:#fff;padding:12px 20px;display:flex;align-items:center;gap:16px">
+  <span style="font-size:16px;font-weight:700">Maintenance Trail Report — Ready to Print</span>
+  <button onclick="window.print()" style="margin-left:auto;background:#fff;color:#1a3a5c;
+    border:none;border-radius:8px;padding:9px 20px;font-size:14px;font-weight:700;cursor:pointer">
+    🖨 Print / Save PDF
+  </button>
+</div>
+
+<!-- HEADER BANNER -->
+<table style="background:#1a3a5c;margin-bottom:0">
+  <tr>
+    <td style="padding:16px 18px;width:70%">
+      <div style="color:#fff;font-size:18pt;font-weight:700;letter-spacing:.5px">MAINTENANCE TRAIL REPORT</div>
+      <div style="color:#bbdefb;font-size:9.5pt;margin-top:3px">
+        STR / Airbnb · Proactive Safety-First Home Maintenance · Utah
+      </div>
+    </td>
+    <td style="padding:16px 18px;text-align:right;vertical-align:middle">
+      <div style="color:#90caf9;font-size:9pt;font-style:italic">[Company Logo]</div>
+      <div style="color:#bbdefb;font-size:8.5pt;margin-top:4px">Report Date: ${date}</div>
+    </td>
+  </tr>
+</table>
+
+<!-- PROPERTY & VISIT INFO -->
+<table style="border:1px solid #c5cae9;margin-bottom:0">
+  <tr>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c;width:20%">Property Address</td>
+    <td style="padding:8px 12px;font-size:9.5pt;width:35%">${esc(S.addr||'—')}</td>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c;width:15%">Visit Date</td>
+    <td style="padding:8px 12px;font-size:9.5pt;width:30%">${date}</td>
+  </tr>
+  <tr>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c">Platform</td>
+    <td style="padding:8px 12px;font-size:9.5pt">${esc(S.plat||'—')}</td>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c">Visit #</td>
+    <td style="padding:8px 12px;font-size:9.5pt">${S.visitNum||'—'} of month</td>
+  </tr>
+  <tr>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c">Service Plan</td>
+    <td style="padding:8px 12px;font-size:9.5pt">${plan}</td>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c">Technician</td>
+    <td style="padding:8px 12px;font-size:9.5pt">${esc(S.tech||'—')}</td>
+  </tr>
+  <tr>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c">Report #</td>
+    <td style="padding:8px 12px;font-size:9.5pt">${esc(S.rnum||'—')}</td>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c">Arrival / Departure</td>
+    <td style="padding:8px 12px;font-size:9.5pt">&nbsp;</td>
+  </tr>
+</table>
+
+<!-- INSPECTION SUMMARY -->
+<table style="margin:10px 0;border:1px solid #c5cae9">
+  <tr>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c;width:33%">Items Inspected</td>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c;width:33%">Items Passed ✓</td>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c;width:34%">Require Action ✗</td>
+  </tr>
+  <tr>
+    <td style="padding:10px 12px;font-size:20pt;font-weight:800;color:#1a3a5c">${total}</td>
+    <td style="padding:10px 12px;font-size:20pt;font-weight:800;color:#1b5e20">${pass}</td>
+    <td style="padding:10px 12px;font-size:20pt;font-weight:800;color:#b71c1c">${action}</td>
+  </tr>
+</table>
+
+<!-- CHECKLIST SECTIONS -->
+<table style="border:1px solid #cfd8dc;margin-bottom:16px">
+  ${sectionsHTML}
+</table>
+
+${hasPhotos ? `
+<!-- PHOTO DOCUMENTATION -->
+<table style="border:1px solid #cfd8dc;margin-bottom:16px">
+  <tr><td colspan="3" style="background:#1a3a5c;color:#fff;padding:9px 12px;
+    font-size:10pt;font-weight:700;text-transform:uppercase">
+    Photo Documentation — Before &amp; After
+  </td></tr>
+  ${photoHTML}
+</table>` : ''}
+
+${S.work.length ? `
+<!-- WORK COMPLETED -->
+<table style="border:1px solid #cfd8dc;margin-bottom:16px">
+  <tr><td colspan="4" style="background:#1a3a5c;color:#fff;padding:9px 12px;
+    font-size:10pt;font-weight:700;text-transform:uppercase">
+    Work Completed This Visit
+    <span style="font-size:8.5pt;font-weight:400;opacity:.7">&nbsp;·&nbsp;Sentry &amp; Guardian: up to 2 hrs included labor/month</span>
+  </td></tr>
+  <tr style="background:#e3f2fd">
+    <td style="padding:7px 10px;font-size:9pt;font-weight:700;color:#1a3a5c;width:45%">Task Performed</td>
+    <td style="padding:7px 10px;font-size:9pt;font-weight:700;color:#1a3a5c;text-align:center;width:15%">Time</td>
+    <td style="padding:7px 10px;font-size:9pt;font-weight:700;color:#1a3a5c;width:25%">Parts Used</td>
+    <td style="padding:7px 10px;font-size:9pt;font-weight:700;color:#1a3a5c;text-align:right;width:15%">Parts Cost</td>
+  </tr>
+  ${workHTML}
+</table>` : ''}
+
+${S.proposals.length ? `
+<!-- PROPOSALS -->
+<table style="border:1px solid #cfd8dc;margin-bottom:16px">
+  <tr><td colspan="4" style="background:#e65100;color:#fff;padding:9px 12px;
+    font-size:10pt;font-weight:700;text-transform:uppercase">
+    Fixed-Price Proposals — Client Approval Required
+  </td></tr>
+  <tr style="background:#e3f2fd">
+    <td style="padding:7px 10px;font-size:9pt;font-weight:700;color:#1a3a5c;width:50%">Repair Description</td>
+    <td style="padding:7px 10px;font-size:9pt;font-weight:700;color:#1a3a5c;text-align:right;width:16%">Labor ($)</td>
+    <td style="padding:7px 10px;font-size:9pt;font-weight:700;color:#1a3a5c;text-align:right;width:16%">Parts ($)</td>
+    <td style="padding:7px 10px;font-size:9pt;font-weight:700;color:#1a3a5c;text-align:right;width:18%">Total ($)</td>
+  </tr>
+  ${propHTML}
+  <tr><td colspan="4" style="padding:8px 12px;font-size:8.5pt;font-style:italic;color:#757575">
+    Client approval required before scheduling any proposed repair. Contact your technician to authorize.
+  </td></tr>
+</table>` : ''}
+
+${S.techNotes ? `
+<!-- TECHNICIAN NOTES -->
+<table style="border:1px solid #cfd8dc;margin-bottom:16px">
+  <tr><td style="background:#1a3a5c;color:#fff;padding:9px 12px;
+    font-size:10pt;font-weight:700;text-transform:uppercase">
+    Technician Notes &amp; Seasonal Recommendations
+  </td></tr>
+  <tr><td style="padding:12px 14px;font-size:9.5pt;line-height:1.6;white-space:pre-wrap">${esc(S.techNotes)}</td></tr>
+</table>` : ''}
+
+<!-- SIGN-OFF -->
+<table style="border:1px solid #cfd8dc;margin-bottom:16px">
+  <tr>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c;width:40%">Technician Certification</td>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c;width:35%">Client Approval</td>
+    <td style="background:#e3f2fd;padding:8px 12px;font-size:9pt;font-weight:700;color:#1a3a5c;width:25%">Date Signed</td>
+  </tr>
+  <tr>
+    <td style="padding:14px 12px 28px;font-size:9.5pt">
+      Printed Name: ${esc(S.tech||'')}<br><br>
+      Signature: _______________________
+    </td>
+    <td style="padding:14px 12px 28px;font-size:9.5pt">
+      <div style="margin-bottom:4px">☐ Approved &nbsp;&nbsp; ☐ Declined</div>
+      Signature: _______________________
+    </td>
+    <td style="padding:14px 12px 28px;font-size:9.5pt">${date}</td>
+  </tr>
+</table>
+
+<p style="font-size:7.5pt;color:#9e9e9e;text-align:center;font-style:italic;margin-top:8px">
+  This Maintenance Trail report documents conditions at the time of inspection only. Retain for warranty, insurance &amp; compliance purposes. Utah Licensed &amp; Insured.
+</p>
+
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) { toast('Please allow popups to generate report'); return; }
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+}
+
+// ─── PERSISTENCE ──────────────────────────────────────────────────────────────
+function saveLS() {
+  try {
+    localStorage.setItem('mtr', JSON.stringify({
+      plan:S.plan, visitNum:S.visitNum,
+      addr:S.addr||'', plat:S.plat||'', date:S.date||'',
+      tech:S.tech||'', rnum:S.rnum||'',
+      items:S.items, work:S.work, proposals:S.proposals, techNotes:S.techNotes
+    }));
+  } catch(e) {}
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+updateHeader();
+updateFooter();
+document.getElementById('prog-fill').style.width = '0%';
+</script>
+</body>
+</html>
