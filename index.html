@@ -318,65 +318,9 @@ select.fi{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 // ─── CHECKLIST DATA ───────────────────────────────────────────────────────────
 const SECTIONS = [
   {
-    id:'smoke', plan:'both',
-    title:'Section 1A — Smoke & CO Detectors',
-    sub:'Safety Sweep · All Plans',
-    items:[
-      {id:'sm1',t:'Smoke detector — Living room: test button & battery'},
-      {id:'sm2',t:'Smoke detector — Bedroom 1: test button & battery'},
-      {id:'sm3',t:'Smoke detector — Bedroom 2: test button & battery'},
-      {id:'sm4',t:'Smoke detector — Hallway / common area'},
-      {id:'sm5',t:'CO detector — Test & verify battery / expiry (max 7 yrs)'},
-      {id:'sm6',t:'All detector units within 10-year manufacturer life'},
-      {id:'sm7',t:'Detectors mounted on ceiling or high wall — not blocked'},
-      {id:'sm8',t:'No tampering, removal, or disabled unit found'},
-    ]
-  },
-  {
-    id:'fire', plan:'both',
-    title:'Section 1B — Fire Safety',
-    sub:'Safety Sweep · All Plans',
-    items:[
-      {id:'fi1',t:'Fire extinguisher — Pressure gauge in green zone'},
-      {id:'fi2',t:'Fire extinguisher — Annual inspection tag current'},
-      {id:'fi3',t:'Kitchen extinguisher accessible & not obstructed'},
-      {id:'fi4',t:'Exit routes clear — front door, back door, windows'},
-      {id:'fi5',t:'Guest-facing emergency info card posted (exits, 911, host #)'},
-    ]
-  },
-  {
-    id:'leak', plan:'both',
-    title:'Section 1C — Leak & Water Damage',
-    sub:'Safety Sweep · All Plans',
-    items:[
-      {id:'lk1',t:'Kitchen under-sink — visual leak check'},
-      {id:'lk2',t:'Bathroom 1 under-sink — visual leak check'},
-      {id:'lk3',t:'Bathroom 2 under-sink — visual leak check'},
-      {id:'lk4',t:'Toilet base(s) — no rocking, no seepage'},
-      {id:'lk5',t:'Water heater — no pooling, PRV intact, temp ~120°F'},
-      {id:'lk6',t:'Supply line hoses (washer, fridge ice maker) — no bulge/crack'},
-      {id:'lk7',t:'Ceiling / walls — no water stains or active moisture'},
-      {id:'lk8',t:'Main water shut-off valve — located & confirmed operational'},
-    ]
-  },
-  {
-    id:'elec', plan:'both',
-    title:'Section 1D — Electrical Safety',
-    sub:'Safety Sweep · All Plans',
-    items:[
-      {id:'el1',t:'GFCI outlets tested — kitchen'},
-      {id:'el2',t:'GFCI outlets tested — bathrooms'},
-      {id:'el3',t:'GFCI outlets tested — exterior / garage'},
-      {id:'el4',t:'No visible damaged cords, exposed wiring, or DIY fixes'},
-      {id:'el5',t:'Panel — no tripped breakers, labels legible'},
-      {id:'el6',t:'All outlet & switch cover plates intact'},
-      {id:'el7',t:'Exterior & porch lighting functional'},
-    ]
-  },
-  {
-    id:'access', plan:'both',
-    title:'Section 2 — Access, Smart Lock & Technology',
-    sub:'All Plans',
+    id:'entry', plan:'both',
+    title:'Entry & Front Door',
+    sub:'Locks · Security · Cameras',
     items:[
       {id:'ac1',t:'Smart lock — Battery level checked (replace < 20%)',hint:'Battery: ____%'},
       {id:'ac2',t:'Smart lock — Remote access tested from app'},
@@ -385,20 +329,124 @@ const SECTIONS = [
       {id:'ac5',t:'Smart lock — Emergency host override code confirmed'},
       {id:'ac6',t:'Deadbolt(s) — Smooth throw, door aligns in frame'},
       {id:'ac7',t:'Strike plate — Secured with 3-inch screws'},
-      {id:'ac8',t:'Sliding door / patio door lock & security bar'},
-      {id:'ac9',t:'All ground-floor window latches functional'},
-      {id:'ac10',t:'Garage door (if applicable) — Auto-reverse safety tested'},
       {id:'ac11',t:'Doorbell camera / security cameras — Online & recording'},
-      {id:'ac12',t:'WiFi router — Online, guest network password current'},
-      {id:'ac13',t:'Smart thermostat — Guest-facing schedule loaded'},
-      {id:'ac14',t:'Tech reset performed (router reboot / hub / lock firmware)'},
-      {id:'ac15',t:'Smart TV / streaming — Accounts active, guest instructions posted'},
+      {id:'el7',t:'Exterior & porch lighting functional'},
+      {id:'fi5',t:'Guest-facing emergency info card posted (exits, 911, host #)'},
     ]
   },
   {
-    id:'hvac', plan:'both',
-    title:'Section 3 — HVAC & Indoor Comfort',
-    sub:'All Plans',
+    id:'living', plan:'both',
+    title:'Living Room',
+    sub:'Common Area · Entertainment',
+    items:[
+      {id:'sm1',t:'Smoke detector — Living room: test button & battery'},
+      {id:'ac8',t:'Sliding door / patio door lock & security bar'},
+      {id:'ac9',t:'All ground-floor window latches functional'},
+      {id:'ac15',t:'Smart TV / streaming — Accounts active, guest instructions posted'},
+      {id:'ap14',t:'Window treatments / blinds — Intact & operable'},
+    ]
+  },
+  {
+    id:'kitchen', plan:'both',
+    title:'Kitchen',
+    sub:'Appliances · Plumbing · Safety',
+    items:[
+      {id:'fi1',t:'Fire extinguisher — Pressure gauge in green zone'},
+      {id:'fi2',t:'Fire extinguisher — Annual inspection tag current'},
+      {id:'fi3',t:'Kitchen extinguisher accessible & not obstructed'},
+      {id:'el1',t:'GFCI outlets tested'},
+      {id:'lk1',t:'Under-sink — visual leak check'},
+      {id:'ap1',t:'Refrigerator — Running, door seals intact, no ice build-up',hint:'Fridge: ___°F   Freezer: ___°F'},
+      {id:'ap2',t:'Dishwasher — Run rinse cycle, no leaks, drain clear'},
+      {id:'ap3',t:'Range / Oven — All burners / elements functional'},
+      {id:'ap4',t:'Range hood — Fan operational, filter not clogged'},
+      {id:'ap5',t:'Microwave — Functional, door latch secure'},
+      {id:'ap8',t:'Garbage disposal — Operational, no odors'},
+      {id:'ap9',t:'Kitchen faucet — No drip, hot & cold present'},
+    ]
+  },
+  {
+    id:'bed1', plan:'both',
+    title:'Bedroom 1',
+    sub:'Primary Bedroom',
+    items:[
+      {id:'sm2',t:'Smoke detector — Test button & battery'},
+    ]
+  },
+  {
+    id:'bed2', plan:'both',
+    title:'Bedroom 2',
+    sub:'Secondary Bedroom',
+    items:[
+      {id:'sm3',t:'Smoke detector — Test button & battery'},
+    ]
+  },
+  {
+    id:'hallway', plan:'both',
+    title:'Hallway & Common Areas',
+    sub:'Safety · CO Detection · Egress',
+    items:[
+      {id:'sm4',t:'Smoke detector — Hallway / common area: test button & battery'},
+      {id:'sm5',t:'CO detector — Test & verify battery / expiry (max 7 yrs)'},
+      {id:'sm6',t:'All detector units within 10-year manufacturer life'},
+      {id:'sm7',t:'Detectors mounted on ceiling or high wall — not blocked'},
+      {id:'sm8',t:'No tampering, removal, or disabled unit found'},
+      {id:'fi4',t:'Exit routes clear — front door, back door, windows'},
+    ]
+  },
+  {
+    id:'bath1', plan:'both',
+    title:'Bathroom 1',
+    sub:'Plumbing · GFCI · Exhaust',
+    items:[
+      {id:'lk2',t:'Under-sink — visual leak check'},
+      {id:'lk4a',t:'Toilet base — no rocking, no seepage'},
+      {id:'el2a',t:'GFCI outlets tested'},
+      {id:'ap10a',t:'Shower / tub — Drain clear, no slow drain'},
+      {id:'ap11a',t:'Toilet — No running water, flush strong'},
+      {id:'hv7a',t:'Bathroom exhaust fan — Operational'},
+    ]
+  },
+  {
+    id:'bath2', plan:'both',
+    title:'Bathroom 2',
+    sub:'Plumbing · GFCI · Exhaust',
+    items:[
+      {id:'lk3',t:'Under-sink — visual leak check'},
+      {id:'lk4b',t:'Toilet base — no rocking, no seepage'},
+      {id:'el2b',t:'GFCI outlets tested'},
+      {id:'ap10b',t:'Shower / tub — Drain clear, no slow drain'},
+      {id:'ap11b',t:'Toilet — No running water, flush strong'},
+      {id:'hv7b',t:'Bathroom exhaust fan — Operational'},
+    ]
+  },
+  {
+    id:'laundry', plan:'both',
+    title:'Laundry & Utility Room',
+    sub:'Washer · Dryer · Water Heater · Shutoff',
+    items:[
+      {id:'ap6',t:'Washer — Rinse cycle, no error codes, door seal clean'},
+      {id:'ap7',t:'Dryer — Heating element works, cycle completes'},
+      {id:'lk6',t:'Supply line hoses (washer, fridge ice maker) — no bulge/crack'},
+      {id:'hv8',t:'Dryer vent — No lint blockage at exterior cap'},
+      {id:'lk5',t:'Water heater — no pooling, PRV intact, temp ~120°F'},
+      {id:'lk8',t:'Main water shut-off valve — located & confirmed operational'},
+      {id:'ap12',t:'Hot water — Adequate supply & pressure'},
+    ]
+  },
+  {
+    id:'garage', plan:'both',
+    title:'Garage',
+    sub:'Access · GFCI · Door Safety',
+    items:[
+      {id:'el3',t:'GFCI outlets tested — exterior / garage'},
+      {id:'ac10',t:'Garage door (if applicable) — Auto-reverse safety tested'},
+    ]
+  },
+  {
+    id:'systems', plan:'both',
+    title:'Whole-House Systems',
+    sub:'HVAC · Electrical · Tech · Moisture',
     items:[
       {id:'hv1',t:'HVAC filter — Inspected (replace if > 30% loaded)',hint:'Filter size: ___'},
       {id:'hv2',t:'Filter last replaced date noted',hint:'Date: ___/___/______   MERV: ___'},
@@ -406,36 +454,21 @@ const SECTIONS = [
       {id:'hv4',t:'Cooling mode — Runs, reaches set temp'},
       {id:'hv5',t:'Thermostat — Calibrated ±2°F of room temp'},
       {id:'hv6',t:'All supply vents open & clear of furniture'},
-      {id:'hv7',t:'Bathroom exhaust fan(s) — Operational'},
-      {id:'hv8',t:'Dryer vent — No lint blockage at exterior cap'},
       {id:'hv9',t:'Condensate drain (cooling season) — No algae blockage'},
       {id:'hv10',t:'No unusual HVAC noises or error codes'},
-    ]
-  },
-  {
-    id:'appl', plan:'both',
-    title:'Section 4 — Appliances & Fixtures',
-    sub:'All Plans',
-    items:[
-      {id:'ap1',t:'Refrigerator — Running, door seals intact, no ice build-up',hint:'Fridge: ___°F   Freezer: ___°F'},
-      {id:'ap2',t:'Dishwasher — Run rinse cycle, no leaks, drain clear'},
-      {id:'ap3',t:'Range / Oven — All burners / elements functional'},
-      {id:'ap4',t:'Range hood — Fan operational, filter not clogged'},
-      {id:'ap5',t:'Microwave — Functional, door latch secure'},
-      {id:'ap6',t:'Washer — Rinse cycle, no error codes, door seal clean'},
-      {id:'ap7',t:'Dryer — Heating element works, cycle completes'},
-      {id:'ap8',t:'Garbage disposal — Operational, no odors'},
-      {id:'ap9',t:'Kitchen faucet — No drip, hot & cold present'},
-      {id:'ap10',t:'Shower / tub — Drain clear, no slow drain'},
-      {id:'ap11',t:'Toilet(s) — No running water, flush strong'},
-      {id:'ap12',t:'Hot water — Adequate supply & pressure'},
+      {id:'el4',t:'No visible damaged cords, exposed wiring, or DIY fixes'},
+      {id:'el5',t:'Panel — no tripped breakers, labels legible'},
+      {id:'el6',t:'All outlet & switch cover plates intact'},
+      {id:'lk7',t:'Ceiling / walls — no water stains or active moisture'},
       {id:'ap13',t:'Light bulbs — All fixtures functional (replace burned-out)'},
-      {id:'ap14',t:'Window treatments / blinds — Intact & operable'},
+      {id:'ac12',t:'WiFi router — Online, guest network password current'},
+      {id:'ac13',t:'Smart thermostat — Guest-facing schedule loaded'},
+      {id:'ac14',t:'Tech reset performed (router reboot / hub / lock firmware)'},
     ]
   },
   {
     id:'ext', plan:'guardian',
-    title:'Section 5 — Deep-Dive & Exterior Perimeter',
+    title:'Exterior Perimeter',
     sub:'Guardian Plan Only',
     items:[
       {id:'ex1',t:'Entry walkway / steps — No tripping hazards, ice-free (Oct–Apr)'},
@@ -454,8 +487,8 @@ const SECTIONS = [
   },
   {
     id:'guest', plan:'both',
-    title:'Section 6 — Guest Readiness Check',
-    sub:'All Plans',
+    title:'Guest Readiness',
+    sub:'Final Walk-Through · All Plans',
     items:[
       {id:'gr1',t:'Guest welcome / house manual — Present & current'},
       {id:'gr2',t:'Emergency contact info posted (host, 911, local emergency)'},
@@ -539,7 +572,7 @@ function updateHeader() {
   const secs = visibleSections();
   let title = 'Maintenance Trail', sub = 'STR Safety Inspection';
   if (screen === 'setup') { title = 'Property Setup'; sub = 'Step 1 of ' + (secs.length + 3); }
-  else if (screen === 'checklist') { title = secs[secIdx].title; sub = 'Section ' + (secIdx+1) + ' of ' + secs.length; }
+  else if (screen === 'checklist') { title = secs[secIdx].title; sub = 'Room ' + (secIdx+1) + ' of ' + secs.length; }
   else if (screen === 'work')     { title = 'Work Completed'; sub = 'Step ' + (secs.length+2) + ' of ' + (secs.length+3); }
   else if (screen === 'notes')    { title = 'Technician Notes'; sub = 'Step ' + (secs.length+3) + ' of ' + (secs.length+3); }
   else if (screen === 'generate') { title = 'Generate Report'; sub = 'Review & Export'; }
